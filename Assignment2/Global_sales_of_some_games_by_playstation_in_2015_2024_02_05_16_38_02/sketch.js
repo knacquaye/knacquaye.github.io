@@ -15,6 +15,11 @@ function setup() {
 
 function draw() {
   background(220);
+    // Draw a title at the top
+    fill(0); 
+    textSize(20);
+    textAlign(CENTER, BOTTOM); 
+    text('Global Sales of Some Games in 2015', width / 2, topMargin - 170);
   
   if(data){
      //get number of rows in csv file
@@ -28,7 +33,8 @@ function draw() {
     print(game_names);
      let maxSales = max(global_sales); 
     
-    let barWidth = (width - 80)   / numRows;
+    let barWidth = (width - 80) / numRows;
+
     
     for(let i = 0; i < numRows; i++){
       
@@ -37,22 +43,31 @@ function draw() {
       
        rect(leftMargin + i * barWidth, height - bottomMargin - barHeight, barWidth - 10, barHeight);
       
-      fill(0); // Set text color to black for better visibility
-      textAlign(CENTER, TOP); // Align text to be centered horizontally and positioned at the top vertically
+      fill(0); 
+      textSize(12);
+      textAlign(CENTER, TOP); 
       text(game_names[i], leftMargin + i*barWidth + (barWidth / 2) - 27, height - bottomMargin + 5, barWidth - 10);
       
       
-       // Add Y-axis labels
-    fill(0); // Set text color to black
-    textSize(12); // Set text size for Y-axis labels
-    textAlign(RIGHT, CENTER); // Align text to the right for Y-axis labels
-    let yAxisValues = 14; // Number of Y-axis labels
+    // Add Y-axis labels
+    fill(0); 
+    textSize(12); 
+    textAlign(RIGHT, CENTER); 
+    let yAxisValues = 14;
     for (let i = 0; i <= yAxisValues; i++) {
       let value = i;
       let yPosition = map(value, 0, maxSales, height - bottomMargin, topMargin);
       text(value, leftMargin - 10, yPosition);
+        
     }
-      
+    //y axis label
+    fill(0); 
+    textSize(10); 
+    textAlign(RIGHT, CENTER); 
+    let yPosition = topMargin -20;
+    text('Sales', leftMargin - 25, yPosition);
+        
+    
       
     }
     
