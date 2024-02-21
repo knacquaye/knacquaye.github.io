@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>D3 Box Plot</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .box {
+            fill: lightblue;
+            stroke: black;
+        }
+        .median {
+            stroke: red;
+        }
+        .whisker {
+            stroke: black;
+            stroke-width: 1;
+            stroke-dasharray: "5,5";
+        }
+        text {
+            font: 14px sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sales Performance of Top Video Games</h1>
+
+    <h2><center>Sales in millions</center></h2>
+    <svg width="960" height="500"></svg>
+    <script>
+        const data = [
+            14.24, 8.49, 7.67, 6.96, 4.47, 3.85, 3.79, 3.73, 3.38 // Sales data directly as an array
+        ];
+
+        // Sort data
+        data.sort(d3.ascending);
+
+        // SVG setup
+        const svg = d3.select("svg"),
+              margin = {top: 30, right: 30, bottom: 30, left: 40},
+              width = +svg.attr("width") - margin.left - margin.right,
+              height = +svg.attr("height") - margin.top - margin.bottom,
+              g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Scale for the vertical position
+        const yScale = d3.scaleLinear()
+                         .domain([0, d3.max(data)])
+                         .range([height, 0]);
+
+        // Compute quartiles, median, interquartile range, min and max
+        const q1 = d3.quantile(data, 0.25), //25th percentile
+              q3 = d3.quantile(data, 0.75), //75th percentile
+              median = d3.quantile(data, 0.5), // 50th percentile
+              min = d3.min(data),
+              max = d3.max(data);
+
+        // Box
+        g.append("rect")
+         .attr("class", "box")
+         .attr("x", width / 2 - 50)
+         .attr("y", yScale(q3))
+         .attr("height", yScale(q1) - yScale(q3))
+         .attr("width", 100);
+
+        // Median line
+        g.append("line")
+         .attr("class", "median")
+         .attr("x1", width / 2 - 50)
+         .attr("x2", width / 2 + 50)
+         .attr("y1", yScale(median))
+         .attr("y2", yScale(median));
+
+        // Min and max lines (whiskers)
+        g.append("line")
+         .attr("class", "whisker")
+         .attr("x1", width / 2)
+         .attr("x2", width / 2)
+         .attr("y1", yScale(min))
+         .attr("y2", yScale(q1));
+
+        g.append("line")
+         .attr("class", "whisker")
+         .attr("x1", width / 2)
+         .attr("x2", width / 2)
+         .attr("y1", yScale(max))
+         .attr("y2", yScale(q3));
+
+        // Labels for min, median, and max
+        g.append("text")
+         .attr("x", width / 2 + 10)
+         .attr("y", yScale(min))
+         .text(`Min: ${min}`);
+
+        g.append("text")
+         .attr("x", width / 2 + 55)
+         .attr("y", yScale(median))
+         .attr("class", "median")
+         .text(`Median: ${median}`);
+
+        g.append("text")
+         .attr("x", width / 2 + 10)
+         .attr("y", yScale(max))
+         .text(`Max: ${max}`);
+    </script>
+</body>
+</html>
