@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Line Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <script>
+        d3.csv('Quarter.csv')
+            .then(function (data) {
+            // Convert Global_Sales to numbers
+            data.forEach(function (d) {
+                d.Global_Sales = +d.Global_Sales;
+            });
+ 
+
+    const margin = {top: 20, right: 30, bottom: 40, left: 50},
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+    const svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleBand()
+        .domain(data.map(d => d.Quarter))
+        .range([0, width])
+        .padding(0.1);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.Sales)])
+        .range([height, 0]);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+
+    svg.append("g")
+        .call(d3.axisLeft(y));
+
+    const line = d3.line()
+        .x(d => x(d.Quarter) + x.bandwidth() / 2)
+        .y(d => y(d.Sales));
+
+    svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 2)
+        .attr("d", line);
+
+
+        // Add X axis label
+        svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("x", width / 2 + margin.left)
+            .attr("y", height + margin.top + 20)
+            .text("Quarter");
+
+        // Add Y axis label
+        svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 20)
+            .attr("x", -margin.top - height / 2 + 20)
+            .text("Sales (in millions)");
+
+        // Add Chart Title
+        svg.append("text")
+            .attr("x", (width / 2))             
+            .attr("y", 0 - (margin.top / 6))
+            .attr("text-anchor", "middle")  
+            .style("font-size", "24px") 
+            .text("Cumulative Sales by Quarter");
+
+});
+
+    </script>
+</body>
+</html>
