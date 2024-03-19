@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scatterplot with Qualitative Color Scale</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://d3-legend.susielu.com/d3-legend.min.js"></script>
+</head>
+<body>
+    <svg width="960" height="500"></svg>
+    <script type="text/javascript">
+        d3.csv("scatterplot_data.csv").then(function(data) {
+    // Convert numerical values from strings to numbers
+    data.forEach(function(d) {
+        d.X_Value = +d.X_Value;
+        d.Y_Value = +d.Y_Value;
+    });
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    // Set up the scales
+    var xScale = d3.scaleLinear()
+                   .domain([0, d3.max(data, function(d) { return d.X_Value; })])
+                   .range([0, width]);
+
+    var yScale = d3.scaleLinear()
+                   .domain([0, d3.max(data, function(d) { return d.Y_Value; })])
+                   .range([height, 0]);
+
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Append SVG object to the body, and set dimensions
+    var svg = d3.select("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add the scatterplot points
+    svg.selectAll("dot")
+       .data(data)
+     .enter().append("circle")
+       .attr("r", 5)
+       .attr("cx", function(d) { return xScale(d.X_Value); })
+       .attr("cy", function(d) { return yScale(d.Y_Value); })
+       .style("fill", function(d) { return color(d.Category); });
+
+    // Add the X Axis
+    svg.append("g")
+       .attr("transform", "translate(0," + height + ")")
+       .call(d3.axisBottom(xScale));
+
+    // Add the Y Axis
+    svg.append("g")
+       .call(d3.axisLeft(yScale));
+
+    // Add the color legend
+    var legend = d3.legendColor()
+                   .scale(color)
+                   .shape("path", d3.symbol().type(d3.symbolCircle).size(150)())
+                   .shapePadding(10)
+                   .title("Category Legend")
+                   .labelAlign("start");
+
+    svg.append("g")
+       .attr("class", "legend")
+       .attr("transform", "translate(" + (width - 100) + ",20)")
+       .call(legend);
+}).catch(function(error) {
+    console.log(error);
+});
+
+</script>
+</body>
+</html>

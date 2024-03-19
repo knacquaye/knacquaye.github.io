@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequential ColorScale Bar Chart</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://d3-legend.susielu.com/d3-legend.min.js"></script>
+</head>
+<body>
+    <svg width="960" height="600"></svg>
+    <script type="text/javascript">
+        d3.csv("HW2.csv").then(function(data) {
+            // Convert Global_Sales to numbers
+            data.forEach(function(d) {
+                d.Global_Sales = +d.Global_Sales;
+            });
+
+            // Dimensions and margins for the graph
+            var margin = {top: 20, right: 20, bottom: 100, left: 70},
+                width = 960 - margin.left - margin.right,
+                height = 600 - margin.top - margin.bottom;
+
+            // The ranges
+            var x = d3.scaleBand()
+                      .range([0, width])
+                      .padding(0.1)
+                      .domain(data.map(function(d) { return d.Name; }));
+
+            var y = d3.scaleLinear()
+                      .range([height, 0])
+                      .domain([0, d3.max(data, function(d) { return d.Global_Sales; })]);
+
+            // Sequential color scale
+            var color = d3.scaleSequential(d3.interpolateBlues)
+                          .domain([0, d3.max(data, function(d) { return d.Global_Sales; })]);
+
+            var svg = d3.select("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Rectangles
+            svg.selectAll(".bar")
+               .data(data)
+               .enter().append("rect")
+               .attr("class", "bar")
+               .attr("x", function(d) { return x(d.Name); })
+               .attr("width", x.bandwidth())
+               .attr("y", function(d) { return y(d.Global_Sales); })
+               .attr("height", function(d) { return height - y(d.Global_Sales); })
+               .attr("fill", function(d) { return color(d.Global_Sales); });
+
+            // Add the x Axis
+            svg.append("g")
+               .attr("transform", "translate(0," + height + ")")
+               .call(d3.axisBottom(x))
+               .selectAll("text")
+               .style("text-anchor", "end")
+               .attr("dx", "-.8em")
+               .attr("dy", ".15em")
+               .attr("font-size", "14px")
+               .attr("transform", "rotate(-20)");
+
+            // Add the y Axis
+            svg.append("g")
+               .call(d3.axisLeft(y));
+
+            // Add y axis label
+            svg.append("text")
+               .attr("transform", "rotate(-90)")
+               .attr("y", 0 - margin.left)
+               .attr("x",0 - (height / 2))
+               .attr("dy", "1em")
+               .style("text-anchor", "middle")
+               .text("Sales in Millions")
+               .attr("font-size", "14px");
+               
+
+            // Add a legend
+            var legendScale = d3.scaleLinear()
+                                .domain(d3.extent(data, function(d) { return d.Global_Sales; }))
+                                .range([0, 300]);
+
+            var legend = d3.legendColor()
+                           .shapeWidth(30)
+                           .cells(10)
+                           .orient('horizontal')
+                           .scale(color);
+
+            svg.append("g")
+               .attr("class", "legendSequential")
+               .attr("transform", "translate(20," + (height + 60) + ")")
+               .call(legend);
+
+        }).catch(function(error) {
+            console.log(error);
+        });
+    </script>
+</body>
+</html>
