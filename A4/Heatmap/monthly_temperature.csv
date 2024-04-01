@@ -1,0 +1,49 @@
+Region,Month,Temperature
+North America,Jan,0
+North America,Feb,1
+North America,Mar,5
+North America,Apr,10
+North America,May,15
+North America,Jun,20
+North America,Jul,25
+North America,Aug,24
+North America,Sep,19
+North America,Oct,12
+North America,Nov,5
+North America,Dec,2
+Europe,Jan,-2
+Europe,Feb,0
+Europe,Mar,4
+Europe,Apr,9
+Europe,May,14
+Europe,Jun,19
+Europe,Jul,23
+Europe,Aug,22
+Europe,Sep,17
+Europe,Oct,10
+Europe,Nov,4
+Europe,Dec,0
+Asia,Jan,5
+Asia,Feb,7
+Asia,Mar,12
+Asia,Apr,20
+Asia,May,25
+Asia,Jun,30
+Asia,Jul,35
+Asia,Aug,34
+Asia,Sep,29
+Asia,Oct,22
+Asia,Nov,15
+Asia,Dec,10
+Africa,Jan,20
+Africa,Feb,22
+Africa,Mar,25
+Africa,Apr,27
+Africa,May,28
+Africa,Jun,30
+Africa,Jul,35
+Africa,Aug,34
+Africa,Sep,32
+Africa,Oct,29
+Africa,Nov,25
+Africa,Dec,22

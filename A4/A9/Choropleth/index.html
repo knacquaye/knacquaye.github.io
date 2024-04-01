@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Choropleth Map: U.S. Poverty Estimates by County, 2021</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Style for the counties */
+        .county {
+            stroke: #fff;
+            stroke-width: 0.5;
+        }
+        /* Style for the legend */
+        .legend {
+            font-size: 12px;
+        }
+        /* Legend's color box */
+        rect {
+            fill: steelblue;
+            stroke: #fff;
+        }
+    </style>
+</head>
+<body>
+    <svg width="960" height="600"></svg>
+    <script>
+        // Load the GeoJSON and CSV data
+        Promise.all([
+            d3.json('counties.geojson'),
+            d3.csv('choropleth_poverty_estimates_2021.csv')
+        ]).then(function([us, povertyData]) {
+            // Map FIPS_Code to poverty rate
+            const povertyRate = {};
+            povertyData.forEach(d => {
+                povertyRate[d.FIPS_Code] = +d.PCTPOVALL_2021;
+            });
+
+            //color scale from light red to deep red
+            const colorScale = d3.scaleSequential([0,25], d3.interpolateReds);
+
+          
+            const svg = d3.select("svg");
+
+            //projection and path generator
+            const projection = d3.geoAlbersUsa().scale(1300).translate([580, 300]);
+            const path = d3.geoPath().projection(projection);
+
+            // Draw counties
+            svg.selectAll(".county")
+                .data(us.features)
+                .enter().append("path")
+                .attr("class", "county")
+                .attr("d", path)
+                .style("fill", d => colorScale(povertyRate[d.properties.GEOID]));
+
+            //title
+            svg.append("text")
+                .attr("x", (960 / 2))             
+                .attr("y", 20)
+                .attr("text-anchor", "middle")  
+                .style("font-size", "24px") 
+                .text("U.S. Poverty Estimates by County, 2021");
+
+      
+            const legendValues = d3.range(0, 101,20); // Creates an array [0, 20, 40, 60, 80, 100]
+
+            const legend = svg.append("g")
+                .attr("class", "legend")
+                .attr("transform", "translate(20,20)"); 
+
+            legend.selectAll("rect")
+                .data(legendValues)
+                .enter().append("rect")
+                .attr("x", 0)
+                .attr("y", (d, i) => i * 25)
+                .attr("width", 20)
+                .attr("height", 20)
+                .style("fill", d => colorScale(d));
+
+            legend.selectAll("text")
+                .data(legendValues)
+                .enter().append("text")
+                .attr("x", 25) 
+                .attr("y", (d, i) => i * 25 + 15) 
+                .text(d => `${d}%`);
+
+        });
+    </script>
+</body>
+</html>

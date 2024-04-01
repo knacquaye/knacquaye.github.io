@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>State Cost Rank Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: auto;
+            height: auto;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <svg width="960" height="600"></svg>
+    <div class="tooltip"></div>
+
+    <script>
+    d3.csv("expensive_states.csv").then(function(data) {
+        // Filter out the states with missing or invalid coordinates
+        const validData = data.filter(d => d.Latitude !== '#N/A' && d.Longitude !== '#N/A');
+
+        const svg = d3.select("svg");
+        const tooltip = d3.select(".tooltip");
+        const projection = d3.geoAlbersUsa();
+        const radiusScale = d3.scaleSqrt()
+            .domain([1, d3.max(validData, d => +d.costRank)])
+            .range([35, 5]); // Adjust based on your visualization needs
+        
+            svg.selectAll("circle")
+            .data(validData)
+            .enter().append("circle")
+            .attr("cx", d => projection([+d.Longitude, +d.Latitude])[0])
+            .attr("cy", d => projection([+d.Longitude, +d.Latitude])[1])
+            .attr("r", d => radiusScale(+d.costRank))
+            .attr("fill", d => +d.costRank === 1 ? "red" : "steelblue")
+            .on("mouseover", function(event, d) {
+                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.html(d.State + "<br/>Cost Rank: " + d.costRank)
+                        .style("left", (event.pageX) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+
+       
+
+        // Add a title
+        svg.append("text")
+           .attr("x", (960 / 2))
+           .attr("y", 20)
+           .attr("text-anchor", "middle")
+           .style("font-size", "24px")
+           .text("State Cost Rank Visualization");
+    });
+    </script>
+</body>
+</html>
+

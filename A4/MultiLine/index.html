@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-Line Chart with Axis Titles and Legend</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <script>
+        // Set the dimensions and margins of the graph
+        const margin = {top: 10, right: 100, bottom: 50, left: 60},
+            width = 460 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+
+        // Append the svg object to the body of the page
+        const svg = d3.select("body")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Read the data
+        d3.csv("global_temperature.csv").then(function(data) {
+
+            // List of groups = header of the csv files
+            const keys = data.columns.slice(1)
+
+            // Add X axis
+            const x = d3.scaleLinear()
+              .domain(d3.extent(data, d => d.Year))
+              .range([ 0, width ]);
+            svg.append("g")
+              .attr("transform", `translate(0, ${height})`)
+              .call(d3.axisBottom(x).ticks(5));
+
+            // Add Y axis
+            const y = d3.scaleLinear()
+              .domain([0, 30])
+              .range([ height, 0 ]);
+            svg.append("g")
+              .call(d3.axisLeft(y));
+
+            // X axis title
+            svg.append("text")             
+              .attr("transform",
+                    "translate(" + (width/2) + " ," + 
+                                   (height + margin.top + 20) + ")")
+              .style("text-anchor", "middle")
+              .text("Year");
+
+            // Y axis title
+            svg.append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 0 - margin.left)
+              .attr("x",0 - (height / 2))
+              .attr("dy", "1em")
+              .style("text-anchor", "middle")
+              .text("Temperature (°C)");  
+
+            // color palette
+            const color = d3.scaleOrdinal()
+              .domain(keys)
+              .range(d3.schemeSet2);
+
+            // Draw the line
+            keys.forEach(function(key) {
+                svg.append("path")
+                  .datum(data)
+                  .attr("fill", "none")
+                  .attr("stroke", color(key))
+                  .attr("stroke-width", 1.5)
+                  .attr("d", d3.line()
+                    .x(function(d) { return x(d.Year) })
+                    .y(function(d) { return y(d[key]) })
+                  );
+            });
+
+            // Add one dot in the legend for each name
+            svg.selectAll("mydots")
+              .data(keys)
+              .enter()
+              .append("circle")
+                .attr("cx", width + 20)
+                .attr("cy", function(d,i){ return 100 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+                .attr("r", 7)
+                .style("fill", function(d){ return color(d)})
+
+            // Add one label in the legend for each name
+            svg.selectAll("mylabels")
+              .data(keys)
+              .enter()
+              .append("text")
+                .attr("x", width + 40)
+                .attr("y", function(d,i){ return 100 + i*25}) // 100 is where the first dot appears. 25 is the distance between dots
+                .style("fill", function(d){ return color(d)})
+                .text(function(d){ return d})
+                .attr("text-anchor", "left")
+                .style("alignment-baseline", "middle")
+        });
+    </script>
+</body>
+</html>
