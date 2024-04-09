@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CO2 Emissions Bar Chart</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .bar {
+            fill: steelblue;
+        }
+        .bar:hover {
+            fill: orange;
+        }
+        .axis-label {
+            font: 14px sans-serif;
+        }
+        .title {
+            font: 16px sans-serif;
+        }
+        .china {
+            fill: red;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chart"></div>
+
+<script>
+// Set the dimensions and margins of the graph
+const margin = {top: 30, right: 30, bottom: 70, left: 60},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// Append the SVG object to the div called 'chart'
+const svg = d3.select("#chart")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// Sort data
+const data = [
+  {country: "China", value: 29.4},
+  {country: "US", value: 14.3},
+  {country: "EEA", value: 9.8},
+  {country: "India", value: 6.8},
+  {country: "Russia", value: 4.9},
+  {country: "Japan", value: 3.5},
+  {country: "Other", value: 31.5}
+].sort((a, b) => a.value - b.value);
+
+// X axis
+const x = d3.scaleBand()
+  .range([ 0, width ])
+  .domain(data.map(d => d.country))
+  .padding(0.2);
+svg.append("g")
+  .attr("transform", `translate(0,${height})`)
+  .call(d3.axisBottom(x))
+  .selectAll("text")
+    .style("text-anchor", "middle")
+    .style("font-size", "16px");
+
+// Add Y axis
+const y = d3.scaleLinear()
+  .domain([0, 35])
+  .range([ height, 0]);
+svg.append("g")
+  .call(d3.axisLeft(y));
+
+// Bars
+svg.selectAll("mybar")
+  .data(data)
+  .join("rect")
+    .attr("class", d => d.country === "China" ? "china" : "bar")
+    .attr("x", d => x(d.country))
+    .attr("y", d => y(d.value))
+    .attr("width", x.bandwidth())
+    .attr("height", d => height - y(d.value));
+
+//labels
+svg.selectAll("text.bar")
+  .data(data)
+  .join("text")
+    .attr("class", "label")
+    .attr("text-anchor", "middle")
+    .attr("x", d => x(d.country) + x.bandwidth() / 2)
+    .attr("y", d => y(d.value) - 5)
+    .text(d => `${d.value}%`);
+
+//title
+svg.append("text")
+    .attr("class", "title")
+    .attr("x", width / 2)
+    .attr("y", -10)
+    .attr("text-anchor", "middle")
+    .text("CO2 Emissions");
+</script>
+
+</body>
+</html>
